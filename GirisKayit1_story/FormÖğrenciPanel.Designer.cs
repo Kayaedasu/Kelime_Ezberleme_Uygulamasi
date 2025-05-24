@@ -35,6 +35,8 @@
             label2 = new Label();
             button3 = new Button();
             label3 = new Label();
+            button4 = new Button();
+            label4 = new Label();
             SuspendLayout();
             // 
             // button1
@@ -42,7 +44,7 @@
             button1.BackColor = Color.FromArgb(255, 192, 128);
             button1.BackgroundImage = (Image)resources.GetObject("button1.BackgroundImage");
             button1.BackgroundImageLayout = ImageLayout.Stretch;
-            button1.Location = new Point(61, 102);
+            button1.Location = new Point(57, 26);
             button1.Name = "button1";
             button1.Size = new Size(172, 182);
             button1.TabIndex = 0;
@@ -54,7 +56,7 @@
             button2.BackColor = Color.FromArgb(255, 192, 128);
             button2.BackgroundImage = (Image)resources.GetObject("button2.BackgroundImage");
             button2.BackgroundImageLayout = ImageLayout.Stretch;
-            button2.Location = new Point(292, 102);
+            button2.Location = new Point(296, 36);
             button2.Name = "button2";
             button2.Size = new Size(163, 182);
             button2.TabIndex = 1;
@@ -64,7 +66,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(102, 315);
+            label1.Location = new Point(103, 227);
             label1.Name = "label1";
             label1.Size = new Size(79, 28);
             label1.TabIndex = 2;
@@ -73,7 +75,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(312, 330);
+            label2.Location = new Point(316, 241);
             label2.Name = "label2";
             label2.Size = new Size(133, 28);
             label2.TabIndex = 3;
@@ -85,7 +87,7 @@
             button3.BackColor = Color.FromArgb(255, 192, 128);
             button3.BackgroundImage = (Image)resources.GetObject("button3.BackgroundImage");
             button3.BackgroundImageLayout = ImageLayout.Stretch;
-            button3.Location = new Point(514, 102);
+            button3.Location = new Point(536, 36);
             button3.Name = "button3";
             button3.Size = new Size(163, 182);
             button3.TabIndex = 4;
@@ -95,11 +97,32 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(564, 315);
+            label3.Location = new Point(594, 241);
             label3.Name = "label3";
             label3.Size = new Size(56, 28);
             label3.TabIndex = 5;
             label3.Text = "Quiz";
+            // 
+            // button4
+            // 
+            button4.BackColor = Color.FromArgb(255, 192, 128);
+            button4.BackgroundImage = (Image)resources.GetObject("button4.BackgroundImage");
+            button4.BackgroundImageLayout = ImageLayout.Stretch;
+            button4.Location = new Point(303, 303);
+            button4.Name = "button4";
+            button4.Size = new Size(156, 152);
+            button4.TabIndex = 6;
+            button4.UseVisualStyleBackColor = false;
+            button4.Click += button4_Click;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(350, 484);
+            label4.Name = "label4";
+            label4.Size = new Size(55, 28);
+            label4.TabIndex = 7;
+            label4.Text = "LLM";
             // 
             // FormÖğrenciPanel
             // 
@@ -107,6 +130,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(255, 192, 128);
             ClientSize = new Size(779, 550);
+            Controls.Add(label4);
+            Controls.Add(button4);
             Controls.Add(label3);
             Controls.Add(button3);
             Controls.Add(label2);
@@ -129,5 +154,7 @@
         private Label label2;
         private Button button3;
         private Label label3;
+        private Button button4;
+        private Label label4;
     }
 }

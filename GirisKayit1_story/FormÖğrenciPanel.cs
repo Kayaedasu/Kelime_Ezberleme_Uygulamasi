@@ -44,5 +44,11 @@ namespace GirisKayit1_story
             wordle.ShowDialog();
 
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            FormLLM LLM = new FormLLM(kullaniciID);
+            LLM.ShowDialog();
+        }
     }
 }

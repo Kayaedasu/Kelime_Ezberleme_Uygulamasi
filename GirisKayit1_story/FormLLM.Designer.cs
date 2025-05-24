@@ -75,6 +75,7 @@
             txtHikaye.Name = "txtHikaye";
             txtHikaye.Size = new Size(593, 204);
             txtHikaye.TabIndex = 3;
+            txtHikaye.TextChanged += txtHikaye_TextChanged;
             // 
             // lblBilinenKelimeler
             // 

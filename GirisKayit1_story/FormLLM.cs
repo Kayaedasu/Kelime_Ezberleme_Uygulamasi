@@ -89,6 +89,10 @@ namespace GirisKayit1_story
             return kelimeler;
         }
 
+        private void txtHikaye_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 

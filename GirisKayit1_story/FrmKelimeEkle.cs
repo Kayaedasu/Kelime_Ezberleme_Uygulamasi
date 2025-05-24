@@ -75,6 +75,8 @@ namespace GirisKayit1_story
             string ingKelime = txtIngKelime.Text.Trim();
             string trKelime = txtTrKelime.Text.Trim();
             string resimAdi = txtResimYolu.Text.Trim(); // sadece dosya adı
+            string zorlukSeviyesi = cmbZorluk.SelectedItem?.ToString();
+            string kategori = txtKategori.Text.Trim();
             string[] cumleler = txtCumleler.Lines;
 
             if (string.IsNullOrEmpty(ingKelime) || string.IsNullOrEmpty(trKelime))
@@ -105,7 +107,6 @@ namespace GirisKayit1_story
 
                     if (sonuc != null)
                     {
-                        // Kelime varsa
                         kelimeId = Convert.ToInt32(sonuc);
 
                         // Sadece örnek cümleleri ekle
@@ -125,12 +126,18 @@ namespace GirisKayit1_story
                     }
                     else
                     {
-                        // Kelime yok, önce kelimeyi ekle
-                        string sorguKelime = "INSERT INTO Kelimeler (IngKelime, TrKelime, ResimYolu) OUTPUT INSERTED.KelimeID VALUES (@ing, @tr, @resim)";
+                        // Kelime yoksa tüm bilgileriyle ekle
+                        string sorguKelime = @"
+                INSERT INTO Kelimeler (IngKelime, TrKelime, ResimYolu, Kategori, ZorlukSeviyesi)
+                OUTPUT INSERTED.KelimeID
+                VALUES (@ing, @tr, @resim, @kategori, @zorluk)";
+
                         SqlCommand cmdKelime = new SqlCommand(sorguKelime, baglanti);
                         cmdKelime.Parameters.AddWithValue("@ing", ingKelime);
                         cmdKelime.Parameters.AddWithValue("@tr", trKelime);
                         cmdKelime.Parameters.AddWithValue("@resim", resimAdi);
+                        cmdKelime.Parameters.AddWithValue("@kategori", kategori);
+                        cmdKelime.Parameters.AddWithValue("@zorluk", zorlukSeviyesi);
 
                         kelimeId = (int)cmdKelime.ExecuteScalar();
 
@@ -153,6 +160,7 @@ namespace GirisKayit1_story
                     Temizle();
                 }
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show("Hata oluştu: " + ex.Message);
@@ -166,6 +174,9 @@ namespace GirisKayit1_story
             txtResimYolu.Clear();
             txtCumleler.Clear();
             pctSüs.Image = null;
+            txtKategori.Clear();
+            cmbZorluk.SelectedIndex = -1;
+
         }
 
         private void FrmKelimeEkle_Load(object sender, EventArgs e)

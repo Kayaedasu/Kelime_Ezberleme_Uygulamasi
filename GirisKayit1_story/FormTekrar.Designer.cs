@@ -40,6 +40,9 @@
             txtDogru = new TextBox();
             txtYanlıs = new TextBox();
             pictureBox1 = new PictureBox();
+            rbKolay = new RadioButton();
+            rbOrta = new RadioButton();
+            rbZor = new RadioButton();
             ((System.ComponentModel.ISupportInitialize)pbResim).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -48,7 +51,7 @@
             // 
             lblIngKelime.AutoSize = true;
             lblIngKelime.Font = new Font("Elephant", 18F, FontStyle.Italic, GraphicsUnit.Point, 0);
-            lblIngKelime.Location = new Point(46, 54);
+            lblIngKelime.Location = new Point(30, 9);
             lblIngKelime.Name = "lblIngKelime";
             lblIngKelime.Size = new Size(264, 38);
             lblIngKelime.TabIndex = 0;
@@ -144,12 +147,48 @@
             pictureBox1.TabIndex = 11;
             pictureBox1.TabStop = false;
             // 
+            // rbKolay
+            // 
+            rbKolay.AutoSize = true;
+            rbKolay.Location = new Point(46, 73);
+            rbKolay.Name = "rbKolay";
+            rbKolay.Size = new Size(86, 32);
+            rbKolay.TabIndex = 12;
+            rbKolay.TabStop = true;
+            rbKolay.Text = "Kolay";
+            rbKolay.UseVisualStyleBackColor = true;
+            // 
+            // rbOrta
+            // 
+            rbOrta.AutoSize = true;
+            rbOrta.Location = new Point(138, 73);
+            rbOrta.Name = "rbOrta";
+            rbOrta.Size = new Size(77, 32);
+            rbOrta.TabIndex = 13;
+            rbOrta.TabStop = true;
+            rbOrta.Text = "Orta";
+            rbOrta.UseVisualStyleBackColor = true;
+            // 
+            // rbZor
+            // 
+            rbZor.AutoSize = true;
+            rbZor.Location = new Point(225, 73);
+            rbZor.Name = "rbZor";
+            rbZor.Size = new Size(66, 32);
+            rbZor.TabIndex = 14;
+            rbZor.TabStop = true;
+            rbZor.Text = "Zor";
+            rbZor.UseVisualStyleBackColor = true;
+            // 
             // FormTekrar
             // 
             AutoScaleDimensions = new SizeF(12F, 28F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(255, 192, 128);
             ClientSize = new Size(841, 595);
+            Controls.Add(rbZor);
+            Controls.Add(rbOrta);
+            Controls.Add(rbKolay);
             Controls.Add(pictureBox1);
             Controls.Add(txtYanlıs);
             Controls.Add(txtDogru);
@@ -185,5 +224,8 @@
         private TextBox txtDogru;
         private TextBox txtYanlıs;
         private PictureBox pictureBox1;
+        private RadioButton rbKolay;
+        private RadioButton rbOrta;
+        private RadioButton rbZor;
     }
 }

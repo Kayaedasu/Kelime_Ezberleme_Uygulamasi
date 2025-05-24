@@ -80,34 +80,30 @@ namespace GirisKayit1_story
                 dr.Close();
             }
         }
-
+        private string GetirZorlukSeviyesi()
+        {
+            if (rbKolay.Checked) return "Kolay";
+            else if (rbOrta.Checked) return "Orta";
+            else if (rbZor.Checked) return "Zor";
+            return "Kolay"; // Varsayılan
+        }
 
         private void KelimeGetir()
         {
             using (SqlConnection baglanti = new SqlConnection(baglantiCumlesi))
             {
                 baglanti.Open();
-                gosterilenKelimeSayisi++;
 
-                int limit = GunlukKelimeSayisiGetir(kullaniciID);
-                if (gosterilenKelimeSayisi >= limit)
-                {
-                    MessageBox.Show("Bugünkü çalışma tamamlandı!");
-                    // 🔽 Quiz sonrası analiz formunu göster
-                    FormAnaliz analizFormu = new FormAnaliz(kullaniciID);
-                    analizFormu.ShowDialog();
-                }
+                string zorluk = GetirZorlukSeviyesi(); // kolay/orta/zor alınır
 
-                string sorgu = $@"
-            SELECT TOP ({limit}) k.KelimeID, k.IngKelime, k.TrKelime, k.ResimYolu
-            FROM Kelimeler k
-            LEFT JOIN KelimeTekrarDurumu kt ON kt.KelimeID = k.KelimeID AND kt.KullaniciID = @kullaniciID
-            WHERE ISNULL(kt.DogruSayisi, 0) < @hedefDogruSayisi AND (kt.BilinenSoru = 0 OR kt.BilinenSoru IS NULL)
+                string sorgu = @"
+            SELECT TOP 1 KelimeID, IngKelime, TrKelime, ResimYolu 
+            FROM Kelimeler 
+            WHERE ZorlukSeviyesi = @zorluk
             ORDER BY NEWID()";
 
                 SqlCommand cmd = new SqlCommand(sorgu, baglanti);
-                cmd.Parameters.AddWithValue("@kullaniciID", kullaniciID);
-                cmd.Parameters.AddWithValue("@hedefDogruSayisi", hedefDogruSayisi);
+                cmd.Parameters.AddWithValue("@zorluk", zorluk);
 
                 SqlDataReader dr = cmd.ExecuteReader();
 
@@ -128,14 +124,14 @@ namespace GirisKayit1_story
                 }
                 else
                 {
-                    MessageBox.Show("Tüm kelimeler başarıyla öğrenildi.");
+                    MessageBox.Show("Bu zorluk seviyesinde çalışacak kelime kalmadı.");
                     this.Close();
-
                 }
 
                 dr.Close();
             }
         }
+
 
 
         private void BilinenSoruSayisiniGoster()

@@ -41,6 +41,10 @@
             btnKaydet = new Button();
             pctSüs = new PictureBox();
             pictureBox1 = new PictureBox();
+            cmbZorluk = new ComboBox();
+            label1 = new Label();
+            label2 = new Label();
+            txtKategori = new TextBox();
             ((System.ComponentModel.ISupportInitialize)pctSüs).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -105,7 +109,7 @@
             // 
             // txtCumleler
             // 
-            txtCumleler.Location = new Point(300, 319);
+            txtCumleler.Location = new Point(300, 322);
             txtCumleler.Multiline = true;
             txtCumleler.Name = "txtCumleler";
             txtCumleler.ScrollBars = ScrollBars.Vertical;
@@ -126,7 +130,7 @@
             // btnKaydet
             // 
             btnKaydet.BackColor = Color.FromArgb(255, 224, 192);
-            btnKaydet.Location = new Point(300, 388);
+            btnKaydet.Location = new Point(300, 471);
             btnKaydet.Name = "btnKaydet";
             btnKaydet.Size = new Size(221, 60);
             btnKaydet.TabIndex = 9;
@@ -153,12 +157,52 @@
             pictureBox1.TabIndex = 11;
             pictureBox1.TabStop = false;
             // 
+            // cmbZorluk
+            // 
+            cmbZorluk.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbZorluk.FormattingEnabled = true;
+            cmbZorluk.Items.AddRange(new object[] { "Kolay ", "Orta ", "Zor" });
+            cmbZorluk.Location = new Point(300, 52);
+            cmbZorluk.Name = "cmbZorluk";
+            cmbZorluk.Size = new Size(221, 36);
+            cmbZorluk.TabIndex = 12;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(135, 55);
+            label1.Name = "label1";
+            label1.Size = new Size(159, 28);
+            label1.TabIndex = 13;
+            label1.Text = "Zorluk Seviyesi:\r\n";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(195, 391);
+            label2.Name = "label2";
+            label2.Size = new Size(99, 28);
+            label2.TabIndex = 14;
+            label2.Text = "Kategori:";
+            // 
+            // txtKategori
+            // 
+            txtKategori.Location = new Point(300, 383);
+            txtKategori.Name = "txtKategori";
+            txtKategori.ReadOnly = true;
+            txtKategori.Size = new Size(221, 36);
+            txtKategori.TabIndex = 15;
+            // 
             // FrmKelimeEkle
             // 
             AutoScaleDimensions = new SizeF(12F, 28F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(255, 192, 128);
             ClientSize = new Size(913, 611);
+            Controls.Add(txtKategori);
+            Controls.Add(label2);
+            Controls.Add(label1);
+            Controls.Add(cmbZorluk);
             Controls.Add(pictureBox1);
             Controls.Add(pctSüs);
             Controls.Add(btnKaydet);
@@ -197,5 +241,9 @@
         private Button btnKaydet;
         private PictureBox pctSüs;
         private PictureBox pictureBox1;
+        private ComboBox cmbZorluk;
+        private Label label1;
+        private Label label2;
+        private TextBox txtKategori;
     }
 }

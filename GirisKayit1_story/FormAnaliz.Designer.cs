@@ -30,7 +30,7 @@
         {
             lblBaslik = new Label();
             btnYenile = new Button();
-            btnYazdir = new Button();
+            btnPfKaydet = new Button();
             dgvAnaliz = new DataGridView();
             ((System.ComponentModel.ISupportInitialize)dgvAnaliz).BeginInit();
             SuspendLayout();
@@ -56,15 +56,16 @@
             btnYenile.UseVisualStyleBackColor = false;
             btnYenile.Click += btnYenile_Click;
             // 
-            // btnYazdir
+            // btnPfKaydet
             // 
-            btnYazdir.BackColor = Color.FromArgb(255, 224, 192);
-            btnYazdir.Location = new Point(140, 474);
-            btnYazdir.Name = "btnYazdir";
-            btnYazdir.Size = new Size(258, 45);
-            btnYazdir.TabIndex = 2;
-            btnYazdir.Text = "🖨️ Yazdır / PDF Kaydet";
-            btnYazdir.UseVisualStyleBackColor = false;
+            btnPfKaydet.BackColor = Color.FromArgb(255, 224, 192);
+            btnPfKaydet.Location = new Point(140, 474);
+            btnPfKaydet.Name = "btnPfKaydet";
+            btnPfKaydet.Size = new Size(258, 45);
+            btnPfKaydet.TabIndex = 2;
+            btnPfKaydet.Text = "🖨️ Yazdır / PDF Kaydet";
+            btnPfKaydet.UseVisualStyleBackColor = false;
+            btnPfKaydet.Click += btnPfKaydet_Click;
             // 
             // dgvAnaliz
             // 
@@ -83,7 +84,7 @@
             BackColor = Color.FromArgb(255, 192, 128);
             ClientSize = new Size(553, 624);
             Controls.Add(dgvAnaliz);
-            Controls.Add(btnYazdir);
+            Controls.Add(btnPfKaydet);
             Controls.Add(btnYenile);
             Controls.Add(lblBaslik);
             Font = new Font("Corbel", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 162);
@@ -100,7 +101,7 @@
 
         private Label lblBaslik;
         private Button btnYenile;
-        private Button btnYazdir;
+        private Button btnPfKaydet;
         private DataGridView dgvAnaliz;
     }
 }

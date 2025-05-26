@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GirisKayit1_story
@@ -22,18 +19,21 @@ namespace GirisKayit1_story
         private int gecerliYanlisSayisi = 0;
         private int ardIsikDogruSayisi = 0;
         private int gosterilenKelimeSayisi = 0;
+
+        private int gunlukKelimeSayisi;
+        private List<int> kelimeIDListesi = new List<int>();
+        private int kelimeIndex = 0;
+
         private TimeSpan[] tekrarAraliklari = new TimeSpan[]
-{
-    TimeSpan.Zero,               // 1. tekrar: hemen
-    TimeSpan.FromDays(1),        // 2. tekrar: 1 gün sonra
-    TimeSpan.FromDays(7),        // 3. tekrar: 1 hafta sonra
-    TimeSpan.FromDays(30),       // 4. tekrar: 1 ay sonra
-    TimeSpan.FromDays(90),       // 5. tekrar: 3 ay sonra
-    TimeSpan.FromDays(180),      // 6. tekrar: 6 ay sonra
-    TimeSpan.FromDays(365)       // bitirme: 1 yıl sonra
-};
-
-
+        {
+            TimeSpan.Zero,
+            TimeSpan.FromDays(1),
+            TimeSpan.FromDays(7),
+            TimeSpan.FromDays(30),
+            TimeSpan.FromDays(90),
+            TimeSpan.FromDays(180),
+            TimeSpan.FromDays(365)
+        };
 
         public FormTekrar(int kullaniciID)
         {
@@ -43,10 +43,9 @@ namespace GirisKayit1_story
 
         private void FormTekrar_Load(object sender, EventArgs e)
         {
-            KelimeGetir();
-            BilinenSoruSayisiniGoster();
-            SonucGuncelle();
+            gunlukKelimeSayisi = GunlukKelimeSayisiGetir(kullaniciID);
         }
+
         private int GunlukKelimeSayisiGetir(int kullaniciID)
         {
             using (SqlConnection baglanti = new SqlConnection(baglantiCumlesi))
@@ -56,7 +55,123 @@ namespace GirisKayit1_story
                 SqlCommand cmd = new SqlCommand(sorgu, baglanti);
                 cmd.Parameters.AddWithValue("@kullaniciID", kullaniciID);
                 object sonuc = cmd.ExecuteScalar();
-                return sonuc != null ? Convert.ToInt32(sonuc) : 10; // varsayılan 10
+                return sonuc != null ? Convert.ToInt32(sonuc) : 10;
+            }
+        }
+
+        private void KelimeListesiHazirla()
+        {
+            kelimeIDListesi.Clear();
+            kelimeIndex = 0;
+
+            using (SqlConnection baglanti = new SqlConnection(baglantiCumlesi))
+            {
+                baglanti.Open();
+
+                string zorluk = GetirZorlukSeviyesi();
+                DateTime bugun = DateTime.Today;
+                List<int> tekrarEdilecekler = new List<int>();
+
+                // 1️⃣ Tüm geçmişte doğru bilinen kelimeleri al
+                string dogrularSorgu = @"
+            SELECT KelimeID, MIN(Tarih) AS IlkDogruTarihi
+            FROM KelimeTekrarGecmisi
+            WHERE KullaniciID = @kullaniciID AND DogruMu = 1
+            GROUP BY KelimeID";
+
+                SqlCommand cmd = new SqlCommand(dogrularSorgu, baglanti);
+                cmd.Parameters.AddWithValue("@kullaniciID", kullaniciID);
+
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    int kelimeID = dr.GetInt32(0);
+                    DateTime ilkTarih = dr.GetDateTime(1);
+
+                    // Her aralık için kontrol et
+                    for (int i = 1; i < tekrarAraliklari.Length; i++)
+                    {
+                        DateTime hedefTarih = ilkTarih.Date + tekrarAraliklari[i];
+                        if (hedefTarih == bugun)
+                        {
+                            tekrarEdilecekler.Add(kelimeID);
+                            break;
+                        }
+                    }
+                }
+                dr.Close();
+
+                // 🔽 Eğer sayı fazla ise kırp
+                if (tekrarEdilecekler.Count > gunlukKelimeSayisi)
+                    tekrarEdilecekler = tekrarEdilecekler.Take(gunlukKelimeSayisi).ToList();
+
+                kelimeIDListesi.AddRange(tekrarEdilecekler);
+
+                int kalan = gunlukKelimeSayisi - kelimeIDListesi.Count;
+
+                // 2️⃣ RASTGELE kelimeler (daha önce doğru bilinenler HARİÇ)
+                if (kalan > 0)
+                {
+                    string rastgeleSorgu = $@"
+                SELECT TOP (@kalan) KelimeID 
+                FROM Kelimeler
+                WHERE ZorlukSeviyesi = @zorluk
+                  AND KelimeID NOT IN (
+                      SELECT KelimeID 
+                      FROM KelimeTekrarDurumu 
+                      WHERE KullaniciID = @kullaniciID AND BilinenSoru = 1
+                  )
+                  AND KelimeID NOT IN ({string.Join(",", tekrarEdilecekler.DefaultIfEmpty(-1))})
+                ORDER BY NEWID()";
+
+                    SqlCommand cmd2 = new SqlCommand(rastgeleSorgu, baglanti);
+                    cmd2.Parameters.AddWithValue("@kalan", kalan);
+                    cmd2.Parameters.AddWithValue("@zorluk", zorluk);
+                    cmd2.Parameters.AddWithValue("@kullaniciID", kullaniciID);
+
+                    SqlDataReader dr2 = cmd2.ExecuteReader();
+                    while (dr2.Read())
+                        kelimeIDListesi.Add(dr2.GetInt32(0));
+                    dr2.Close();
+                }
+            }
+        }
+
+
+
+        private void KelimeGetir()
+        {
+            if (kelimeIndex >= kelimeIDListesi.Count)
+            {
+                MessageBox.Show("Günlük kelime hakkınız tamamlandı!");
+                this.Close();
+                return;
+            }
+
+            aktifKelimeID = kelimeIDListesi[kelimeIndex];
+            kelimeIndex++;
+
+            using (SqlConnection baglanti = new SqlConnection(baglantiCumlesi))
+            {
+                baglanti.Open();
+                string sorgu = "SELECT IngKelime, TrKelime, ResimYolu FROM Kelimeler WHERE KelimeID = @kelimeID";
+                SqlCommand cmd = new SqlCommand(sorgu, baglanti);
+                cmd.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
+
+                SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    lblIngKelime.Text = dr.GetString(0);
+                    string resimDosyasi = dr.GetString(2);
+                    string resimYolu = Path.Combine(Application.StartupPath, "Resimler", resimDosyasi);
+                    pbResim.ImageLocation = File.Exists(resimYolu) ? resimYolu : null;
+
+                    CümleleriGoster();
+                    txtCevap.Clear();
+                    BilinenSoruSayisiniGoster();
+                    SonucGuncelle();
+                }
+                dr.Close();
             }
         }
 
@@ -71,80 +186,29 @@ namespace GirisKayit1_story
                 SqlDataReader dr = cmd.ExecuteReader();
 
                 lstCumleler.Items.Clear();
-
                 while (dr.Read())
-                {
                     lstCumleler.Items.Add(dr.GetString(0));
-                }
-
                 dr.Close();
             }
         }
+
         private string GetirZorlukSeviyesi()
         {
             if (rbKolay.Checked) return "Kolay";
-            else if (rbOrta.Checked) return "Orta";
-            else if (rbZor.Checked) return "Zor";
-            return "Kolay"; // Varsayılan
+            if (rbOrta.Checked) return "Orta";
+            if (rbZor.Checked) return "Zor";
+            return "Kolay";
         }
-
-        private void KelimeGetir()
-        {
-            using (SqlConnection baglanti = new SqlConnection(baglantiCumlesi))
-            {
-                baglanti.Open();
-
-                string zorluk = GetirZorlukSeviyesi(); // kolay/orta/zor alınır
-
-                string sorgu = @"
-            SELECT TOP 1 KelimeID, IngKelime, TrKelime, ResimYolu 
-            FROM Kelimeler 
-            WHERE ZorlukSeviyesi = @zorluk
-            ORDER BY NEWID()";
-
-                SqlCommand cmd = new SqlCommand(sorgu, baglanti);
-                cmd.Parameters.AddWithValue("@zorluk", zorluk);
-
-                SqlDataReader dr = cmd.ExecuteReader();
-
-                if (dr.Read())
-                {
-                    aktifKelimeID = dr.GetInt32(0);
-                    lblIngKelime.Text = dr.GetString(1);
-                    string trKelime = dr.GetString(2);
-
-                    string resimDosyasi = dr.GetString(3);
-                    string resimYolu = Path.Combine(Application.StartupPath, "Resimler", resimDosyasi);
-                    pbResim.ImageLocation = File.Exists(resimYolu) ? resimYolu : null;
-
-                    CümleleriGoster();
-                    txtCevap.Clear();
-                    BilinenSoruSayisiniGoster();
-                    SonucGuncelle();
-                }
-                else
-                {
-                    MessageBox.Show("Bu zorluk seviyesinde çalışacak kelime kalmadı.");
-                    this.Close();
-                }
-
-                dr.Close();
-            }
-        }
-
-
 
         private void BilinenSoruSayisiniGoster()
         {
             using (SqlConnection baglanti = new SqlConnection(baglantiCumlesi))
             {
                 baglanti.Open();
-
                 string sorgu = "SELECT DogruSayisi, YanlisSayisi FROM KelimeTekrarDurumu WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID";
                 SqlCommand cmd = new SqlCommand(sorgu, baglanti);
                 cmd.Parameters.AddWithValue("@kullaniciID", kullaniciID);
                 cmd.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
-
                 SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
@@ -154,34 +218,41 @@ namespace GirisKayit1_story
                 dr.Close();
             }
 
-            // TextBox'lara yaz
             txtDogru.Text = gecerliDogruSayisi.ToString();
             txtYanlıs.Text = gecerliYanlisSayisi.ToString();
         }
-
 
         private void SonucGuncelle()
         {
             using (SqlConnection baglanti = new SqlConnection(baglantiCumlesi))
             {
                 baglanti.Open();
-
                 string sorgu = "SELECT DogruSayisi, YanlisSayisi FROM KelimeTekrarDurumu WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID";
                 SqlCommand cmd = new SqlCommand(sorgu, baglanti);
                 cmd.Parameters.AddWithValue("@kullaniciID", kullaniciID);
                 cmd.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
-
                 SqlDataReader dr = cmd.ExecuteReader();
-
                 if (dr.Read())
                 {
                     txtDogru.Text = dr.GetInt32(0).ToString();
                     txtYanlıs.Text = dr.GetInt32(1).ToString();
                 }
-
                 dr.Close();
             }
         }
+
+        private void btnBasla_Click(object sender, EventArgs e)
+        {
+            if (!rbKolay.Checked && !rbOrta.Checked && !rbZor.Checked)
+            {
+                MessageBox.Show("Lütfen bir zorluk seviyesi seçin.");
+                return;
+            }
+
+            KelimeListesiHazirla();
+            KelimeGetir();
+        }
+
         private void btnKontrolEt_Click(object sender, EventArgs e)
         {
             string kullaniciCevabi = txtCevap.Text.Trim();
@@ -194,94 +265,59 @@ namespace GirisKayit1_story
             using (SqlConnection baglanti = new SqlConnection(baglantiCumlesi))
             {
                 baglanti.Open();
-
-                // Kayıt yoksa INSERT et
                 string kontrolVarMi = "SELECT COUNT(*) FROM KelimeTekrarDurumu WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID";
-                SqlCommand cmdKontrolVarMi = new SqlCommand(kontrolVarMi, baglanti);
-                cmdKontrolVarMi.Parameters.AddWithValue("@kullaniciID", kullaniciID);
-                cmdKontrolVarMi.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
-                int kayitVarMi = (int)cmdKontrolVarMi.ExecuteScalar();
+                SqlCommand cmdKontrol = new SqlCommand(kontrolVarMi, baglanti);
+                cmdKontrol.Parameters.AddWithValue("@kullaniciID", kullaniciID);
+                cmdKontrol.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
+                int kayitVarMi = (int)cmdKontrol.ExecuteScalar();
 
                 if (kayitVarMi == 0)
                 {
-                    string insertSorgu = @"INSERT INTO KelimeTekrarDurumu 
-                (KullaniciID, KelimeID, DogruSayisi, YanlisSayisi, SonTekrarTarihi, BilinenSoru, TekrarSayisi)
-                VALUES (@kullaniciID, @kelimeID, 0, 0, GETDATE(), 0, 0)";
-                    SqlCommand cmdInsert = new SqlCommand(insertSorgu, baglanti);
+                    string insert = @"INSERT INTO KelimeTekrarDurumu (KullaniciID, KelimeID, DogruSayisi, YanlisSayisi, SonTekrarTarihi, BilinenSoru, TekrarSayisi)
+                                      VALUES (@kullaniciID, @kelimeID, 0, 0, GETDATE(), 0, 0)";
+                    SqlCommand cmdInsert = new SqlCommand(insert, baglanti);
                     cmdInsert.Parameters.AddWithValue("@kullaniciID", kullaniciID);
                     cmdInsert.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
                     cmdInsert.ExecuteNonQuery();
                 }
 
-                // Doğru cevabı al
-                string dogruCevapSorgu = "SELECT TrKelime FROM Kelimeler WHERE KelimeID = @kelimeID";
-                SqlCommand cmdDogruCevap = new SqlCommand(dogruCevapSorgu, baglanti);
-                cmdDogruCevap.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
-                string dogruCevap = (string)cmdDogruCevap.ExecuteScalar();
+                string dogruSorgu = "SELECT TrKelime FROM Kelimeler WHERE KelimeID = @kelimeID";
+                SqlCommand cmdDogru = new SqlCommand(dogruSorgu, baglanti);
+                cmdDogru.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
+                string dogruCevap = (string)cmdDogru.ExecuteScalar();
 
                 bool dogruMu = string.Equals(kullaniciCevabi, dogruCevap, StringComparison.OrdinalIgnoreCase);
 
+                string gecmisKayit = @"INSERT INTO KelimeTekrarGecmisi (KullaniciID, KelimeID, DogruMu, Tarih)
+                                       VALUES (@kullaniciID, @kelimeID, @dogruMu, GETDATE())";
+                SqlCommand cmdKayit = new SqlCommand(gecmisKayit, baglanti);
+                cmdKayit.Parameters.AddWithValue("@kullaniciID", kullaniciID);
+                cmdKayit.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
+                cmdKayit.Parameters.AddWithValue("@dogruMu", dogruMu);
+                cmdKayit.ExecuteNonQuery();
+
                 if (dogruMu)
                 {
-                    // TekrarSayisi ve SonTekrarTarihi'ni al
-                    string tekrarSorgu = "SELECT TekrarSayisi, SonTekrarTarihi FROM KelimeTekrarDurumu WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID";
-                    SqlCommand cmdTekrar = new SqlCommand(tekrarSorgu, baglanti);
-                    cmdTekrar.Parameters.AddWithValue("@kullaniciID", kullaniciID);
-                    cmdTekrar.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
-
-                    SqlDataReader dr = cmdTekrar.ExecuteReader();
-                    int tekrarSayisi = 0;
-                    DateTime sonTekrarTarihi = DateTime.MinValue;
-
-                    if (dr.Read())
-                    {
-                        tekrarSayisi = dr.IsDBNull(0) ? 0 : dr.GetInt32(0);
-                        sonTekrarTarihi = dr.IsDBNull(1) ? DateTime.MinValue : dr.GetDateTime(1);
-                    }
-
-                    dr.Close();
-
-                    // Zaman kontrolü
-                    TimeSpan gerekenSure = tekrarAraliklari[Math.Min(tekrarSayisi, tekrarAraliklari.Length - 1)];
-                    DateTime beklenenTarih = sonTekrarTarihi.Add(gerekenSure);
-
-                    if (DateTime.Now < beklenenTarih)
-                    {
-                        MessageBox.Show("Bu kelimenin tekrar zamanı henüz gelmedi.");
-                        KelimeGetir();
-                        return;
-                    }
-
-                    // Uygunsa: tekrarSayisi++
-                    tekrarSayisi++;
                     gecerliDogruSayisi++;
-                    gecerliYanlisSayisi = 0;
-
-                    // Güncelle tekrar
-                    string guncelleDogru = @"UPDATE KelimeTekrarDurumu
-                SET TekrarSayisi = @tekrarSayisi,
-                    DogruSayisi = @dogruSayisi,
-                    YanlisSayisi = 0,
-                    SonTekrarTarihi = GETDATE()
-                WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID";
-                    SqlCommand cmdGuncelle = new SqlCommand(guncelleDogru, baglanti);
-                    cmdGuncelle.Parameters.AddWithValue("@tekrarSayisi", tekrarSayisi);
+                    string guncelle = @"UPDATE KelimeTekrarDurumu
+                                        SET DogruSayisi = @dogruSayisi, YanlisSayisi = 0, SonTekrarTarihi = GETDATE()
+                                        WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID";
+                    SqlCommand cmdGuncelle = new SqlCommand(guncelle, baglanti);
                     cmdGuncelle.Parameters.AddWithValue("@dogruSayisi", gecerliDogruSayisi);
                     cmdGuncelle.Parameters.AddWithValue("@kullaniciID", kullaniciID);
                     cmdGuncelle.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
                     cmdGuncelle.ExecuteNonQuery();
 
-                    if (tekrarSayisi >= 6)
+                    if (ZamanlaraGoreDogruKontrolEt(aktifKelimeID))
                     {
-                        string bilinenYap = @"UPDATE KelimeTekrarDurumu 
-                    SET BilinenSoru = 1 
-                    WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID";
-                        SqlCommand cmdBilinen = new SqlCommand(bilinenYap, baglanti);
+                        string bilinen = @"UPDATE KelimeTekrarDurumu 
+                                           SET BilinenSoru = 1 
+                                           WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID";
+                        SqlCommand cmdBilinen = new SqlCommand(bilinen, baglanti);
                         cmdBilinen.Parameters.AddWithValue("@kullaniciID", kullaniciID);
                         cmdBilinen.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
                         cmdBilinen.ExecuteNonQuery();
-
-                        MessageBox.Show("Bu kelimeyi 6 kez farklı zamanlarda doğru bildiniz. Artık bilinen kelimeler arasında!");
+                        MessageBox.Show("Tebrikler! Bu kelime zaman aralıklı olarak 6 kez doğru bilindi.");
                     }
                     else
                     {
@@ -291,39 +327,59 @@ namespace GirisKayit1_story
                 else
                 {
                     gecerliYanlisSayisi++;
-
-                    string guncelleYanlis = @"UPDATE KelimeTekrarDurumu
-                SET YanlisSayisi = @yanlisSayisi,
-                    TekrarSayisi = 0,
-                    DogruSayisi = 0,
-                    SonTekrarTarihi = GETDATE()
-                WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID";
-                    SqlCommand cmdYanlis = new SqlCommand(guncelleYanlis, baglanti);
+                    string yanlis = @"UPDATE KelimeTekrarDurumu
+                                      SET YanlisSayisi = @yanlisSayisi, DogruSayisi = 0, TekrarSayisi = 0, SonTekrarTarihi = GETDATE()
+                                      WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID";
+                    SqlCommand cmdYanlis = new SqlCommand(yanlis, baglanti);
                     cmdYanlis.Parameters.AddWithValue("@yanlisSayisi", gecerliYanlisSayisi);
                     cmdYanlis.Parameters.AddWithValue("@kullaniciID", kullaniciID);
                     cmdYanlis.Parameters.AddWithValue("@kelimeID", aktifKelimeID);
                     cmdYanlis.ExecuteNonQuery();
-
-                    MessageBox.Show("Yanlış cevap! Süreç sıfırlandı.");
                     gecerliDogruSayisi = 0;
+                    MessageBox.Show("Yanlış cevap! Süreç sıfırlandı.");
                 }
 
-           
-
-
-        // Form üzerindeki kutulara sayıları yaz
-        txtDogru.Text = gecerliDogruSayisi.ToString();
+                txtDogru.Text = gecerliDogruSayisi.ToString();
                 txtYanlıs.Text = gecerliYanlisSayisi.ToString();
-
-                // Yeni kelime getir
                 KelimeGetir();
             }
         }
-
-
         private void txtDogru_TextChanged(object sender, EventArgs e)
         {
+           }
 
+        private bool ZamanlaraGoreDogruKontrolEt(int kelimeID)
+        {
+            using (SqlConnection baglanti = new SqlConnection(baglantiCumlesi))
+            {
+                baglanti.Open();
+                string sorgu = @"SELECT Tarih FROM KelimeTekrarGecmisi 
+                                 WHERE KullaniciID = @kullaniciID AND KelimeID = @kelimeID AND DogruMu = 1
+                                 ORDER BY Tarih ASC";
+                SqlCommand cmd = new SqlCommand(sorgu, baglanti);
+                cmd.Parameters.AddWithValue("@kullaniciID", kullaniciID);
+                cmd.Parameters.AddWithValue("@kelimeID", kelimeID);
+
+                List<DateTime> dogruTarihler = new List<DateTime>();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                        dogruTarihler.Add(dr.GetDateTime(0));
+                }
+
+                if (dogruTarihler.Count < 6)
+                    return false;
+
+                DateTime ilkTarih = dogruTarihler[0];
+                for (int i = 1; i <= 5; i++)
+                {
+                    DateTime hedefTarih = ilkTarih + tekrarAraliklari[i];
+                    bool uygunVar = dogruTarihler.Any(dt => dt >= hedefTarih);
+                    if (!uygunVar) return false;
+                }
+
+                return true;
+            }
         }
     }
 }

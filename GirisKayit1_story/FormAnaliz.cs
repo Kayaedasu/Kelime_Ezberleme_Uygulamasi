@@ -8,6 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System.IO;
+
 
 namespace GirisKayit1_story
 {
@@ -64,6 +68,68 @@ namespace GirisKayit1_story
                 da.Fill(dt);
 
                 dgvAnaliz.DataSource = dt;
+            }
+        }
+
+        private void btnPfKaydet_Click(object sender, EventArgs e)
+        {
+            if (dgvAnaliz.Rows.Count == 0)
+            {
+                MessageBox.Show("Rapor tablosu boş!");
+                return;
+            }
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "PDF Dosyası|*.pdf";
+            saveFileDialog.Title = "Analiz Raporunu Kaydet";
+            saveFileDialog.FileName = "BasariAnalizRaporu.pdf";
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    PdfPTable pdfTable = new PdfPTable(dgvAnaliz.Columns.Count);
+                    pdfTable.WidthPercentage = 100;
+
+                    // Başlıklar
+                    foreach (DataGridViewColumn column in dgvAnaliz.Columns)
+                    {
+                        PdfPCell cell = new PdfPCell(new Phrase(column.HeaderText, FontFactory.GetFont("Arial", 10)));
+                        cell.BackgroundColor = new BaseColor(240, 240, 240);
+                        pdfTable.AddCell(cell);
+                    }
+
+                    // Satırlar
+                    foreach (DataGridViewRow row in dgvAnaliz.Rows)
+                    {
+                        if (row.IsNewRow) continue;
+                        foreach (DataGridViewCell cell in row.Cells)
+                        {
+                            pdfTable.AddCell(cell.Value?.ToString() ?? "");
+                        }
+                    }
+
+                    using (FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                    {
+                        Document pdfDoc = new Document(PageSize.A4, 10f, 10f, 10f, 10f);
+                        PdfWriter.GetInstance(pdfDoc, stream);
+                        pdfDoc.Open();
+
+                        Paragraph title = new Paragraph("Başarı Analiz Raporu", FontFactory.GetFont("Arial", 14));
+                        title.Alignment = Element.ALIGN_CENTER;
+                        pdfDoc.Add(title);
+                        pdfDoc.Add(new Chunk("\n"));
+                        pdfDoc.Add(pdfTable);
+                        pdfDoc.Close();
+                        stream.Close();
+                    }
+
+                    MessageBox.Show("PDF başarıyla kaydedildi.");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Hata: " + ex.Message);
+                }
             }
         }
     }

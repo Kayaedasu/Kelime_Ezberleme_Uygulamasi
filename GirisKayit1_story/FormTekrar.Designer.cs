@@ -43,6 +43,7 @@
             rbKolay = new RadioButton();
             rbOrta = new RadioButton();
             rbZor = new RadioButton();
+            btnBasla = new Button();
             ((System.ComponentModel.ISupportInitialize)pbResim).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -77,7 +78,7 @@
             // 
             // txtCevap
             // 
-            txtCevap.Location = new Point(440, 175);
+            txtCevap.Location = new Point(521, 165);
             txtCevap.Name = "txtCevap";
             txtCevap.Size = new Size(266, 36);
             txtCevap.TabIndex = 4;
@@ -86,7 +87,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Footlight MT Light", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label1.Location = new Point(440, 123);
+            label1.Location = new Point(684, 110);
             label1.Name = "label1";
             label1.Size = new Size(103, 24);
             label1.TabIndex = 5;
@@ -95,11 +96,11 @@
             // btnKontrolEt
             // 
             btnKontrolEt.BackColor = Color.FromArgb(255, 224, 192);
-            btnKontrolEt.Location = new Point(563, 247);
+            btnKontrolEt.Location = new Point(644, 221);
             btnKontrolEt.Name = "btnKontrolEt";
             btnKontrolEt.Size = new Size(143, 42);
             btnKontrolEt.TabIndex = 6;
-            btnKontrolEt.Text = "Kontol Et";
+            btnKontrolEt.Text = "Kontrol Et";
             btnKontrolEt.UseVisualStyleBackColor = false;
             btnKontrolEt.Click += btnKontrolEt_Click;
             // 
@@ -108,9 +109,9 @@
             lstCumleler.BackColor = Color.FromArgb(255, 192, 128);
             lstCumleler.FormattingEnabled = true;
             lstCumleler.ItemHeight = 28;
-            lstCumleler.Location = new Point(46, 337);
+            lstCumleler.Location = new Point(12, 337);
             lstCumleler.Name = "lstCumleler";
-            lstCumleler.Size = new Size(342, 144);
+            lstCumleler.Size = new Size(628, 172);
             lstCumleler.TabIndex = 7;
             // 
             // lblYanlis
@@ -140,7 +141,7 @@
             // pictureBox1
             // 
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(575, 321);
+            pictureBox1.Location = new Point(646, 349);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(141, 160);
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -180,12 +181,24 @@
             rbZor.Text = "Zor";
             rbZor.UseVisualStyleBackColor = true;
             // 
+            // btnBasla
+            // 
+            btnBasla.BackColor = Color.FromArgb(255, 224, 192);
+            btnBasla.Location = new Point(297, 68);
+            btnBasla.Name = "btnBasla";
+            btnBasla.Size = new Size(81, 42);
+            btnBasla.TabIndex = 15;
+            btnBasla.Text = "Başla";
+            btnBasla.UseVisualStyleBackColor = false;
+            btnBasla.Click += btnBasla_Click;
+            // 
             // FormTekrar
             // 
             AutoScaleDimensions = new SizeF(12F, 28F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(255, 192, 128);
             ClientSize = new Size(841, 595);
+            Controls.Add(btnBasla);
             Controls.Add(rbZor);
             Controls.Add(rbOrta);
             Controls.Add(rbKolay);
@@ -227,5 +240,6 @@
         private RadioButton rbKolay;
         private RadioButton rbOrta;
         private RadioButton rbZor;
+        private Button btnBasla;
     }
 }

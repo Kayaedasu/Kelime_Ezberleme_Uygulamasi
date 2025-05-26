@@ -16,9 +16,17 @@ namespace GirisKayit1_story
 
         private List<List<Label>> lblHarfSatirlari = new List<List<Label>>();
         private List<string> kelimeListesi = new List<string>();
+
+        public FormWordle(int KullaniciID)
+        {
+            InitializeComponent();
+            this.kullaniciID = KullaniciID;
+            this.Load += FormWordle_Load;
+        }
+
         private void FormWordle_Load(object sender, EventArgs e)
         {
-            kelimeListesi = GetirOgrenilmisKelimeler(); // Veritabanından kelimeleri al
+            kelimeListesi = GetirOgrenilmisKelimeler();
             if (kelimeListesi.Count == 0)
             {
                 MessageBox.Show("Veritabanında öğrenilmiş kelime bulunamadı!");
@@ -26,42 +34,9 @@ namespace GirisKayit1_story
                 return;
             }
 
-            // İlk kelimeyi seç
-            gizliKelime = kelimeListesi[0];
-            kelimeListesi.RemoveAt(0); // İlk kelimeyi listeden çıkar
-            lblDurum.Text = $"Tahmin hakkınız: {tahminHakki}";
+            YeniKelimeyiBaslat();
         }
 
-        public FormWordle(int KullaniciID)
-        {
-            InitializeComponent();
-
-            // Form yüklenme olayını bağla
-            this.Load += FormWordle_Load;  // Yüklenme olayını burada bağlıyoruz
-
-            this.kullaniciID = KullaniciID;
-
-            // Öğrenilmiş kelimeleri veritabanından al
-            kelimeListesi = GetirOgrenilmisKelimeler();
-            if (kelimeListesi.Count == 0)
-            {
-                MessageBox.Show("Veritabanında öğrenilmiş kelime bulunamadı!");
-                this.Hide();  // Formu kapat
-                return;
-            }
-
-            // İlk kelimeyi seç ve başlat
-            gizliKelime = kelimeListesi[0];
-            kelimeListesi.RemoveAt(0); // İlk kelimeyi listeden çıkar
-            lblDurum.Text = $"Tahmin hakkınız: {tahminHakki}";
-            this.Text = "Wordle Oyunu - " + gizliKelime.Length + " Harfli Kelime";
-
-            // Dinamik label oluştur
-            DinamikLabelOlustur();
-            txtTahmin.MaxLength = gizliKelime.Length; // Kullanıcıdan alınacak kelime uzunluğu
-        }
-
-        // Dinamik olarak satırlar ve hücreler oluşturuluyor
         private void DinamikLabelOlustur()
         {
             int baslangicX = 20;
@@ -89,8 +64,7 @@ namespace GirisKayit1_story
             }
         }
 
-        // Kullanıcının tahminini kontrol etme
-        private void btnTahminEt_Click(object sender, EventArgs e)
+        private async void btnTahminEt_Click(object sender, EventArgs e)
         {
             if (aktifSatir >= tahminHakki)
             {
@@ -106,11 +80,9 @@ namespace GirisKayit1_story
                 return;
             }
 
-            // Harflerin durumunu bulmak için:
             char[] gizliDizi = gizliKelime.ToCharArray();
             bool[] harfKullanildi = new bool[gizliKelime.Length];
 
-            // Öncelikle yeşil harfleri işaretle (doğru yer)
             for (int i = 0; i < gizliKelime.Length; i++)
             {
                 if (tahmin[i] == gizliKelime[i])
@@ -125,7 +97,6 @@ namespace GirisKayit1_story
                 lblHarfSatirlari[aktifSatir][i].Text = tahmin[i].ToString().ToUpper();
             }
 
-            // Sarı harfler (yanlış yerde olan harfler)
             for (int i = 0; i < gizliKelime.Length; i++)
             {
                 if (lblHarfSatirlari[aktifSatir][i].BackColor == Color.Green)
@@ -142,64 +113,35 @@ namespace GirisKayit1_story
                         break;
                     }
                 }
+
                 if (!sarildi)
                 {
                     lblHarfSatirlari[aktifSatir][i].BackColor = Color.Gray;
                 }
             }
 
-            // Eğer doğru kelime tahmin edilmişse:
             if (tahmin == gizliKelime)
             {
                 lblDurum.Text = $"Tebrikler! Doğru tahmin ettiniz: {gizliKelime.ToUpper()}";
-                kelimeListesi.Remove(gizliKelime); // Doğru kelimeyi listeden çıkar
                 btnTahminEt.Enabled = false;
                 txtTahmin.Enabled = false;
 
-                // Yeni kelimeyi al ve baştan başlat
-                if (kelimeListesi.Count > 0)
-                {
-                    gizliKelime = kelimeListesi[0];  // Yeni kelimeyi al
-                    kelimeListesi.RemoveAt(0);  // Yeni kelimeyi listeden çıkar
-
-                    aktifSatir = 0;  // Yeni kelimeyle tahmin haklarını sıfırla
-                    lblDurum.Text = $"Yeni Kelime! Tahmin hakkınız: {tahminHakki}";
-
-                    // TextBox'ları sıfırla
-                    foreach (var satir in lblHarfSatirlari)
-                    {
-                        foreach (var lbl in satir)
-                        {
-                            lbl.Text = "";
-                            lbl.BackColor = Color.LightGray;
-                        }
-                    }
-
-                    // Yeni kelimeyi ekle
-                    txtTahmin.Clear();
-                    btnTahminEt.Enabled = true;
-                    txtTahmin.Enabled = true;
-                }
-                else
-                {
-                    lblDurum.Text = "Tüm kelimeleri bildiniz!";
-                    MessageBox.Show("Tüm kelimeleri bildiniz!");
-                    // Oyun sonlandır
-                    btnTahminEt.Enabled = false;
-                    txtTahmin.Enabled = false;
-                }
+                await Task.Delay(1500); // 1.5 saniye bekle, kullanıcı yeşil sonucu görsün
+                YeniKelimeyiBaslat();
+                return;
             }
-            else
-            {
-                aktifSatir++;
-                lblDurum.Text = $"Tahmin hakkınız: {tahminHakki - aktifSatir}";
-            }
+
+            aktifSatir++;
+            lblDurum.Text = $"Tahmin hakkınız: {tahminHakki - aktifSatir}";
 
             if (aktifSatir >= tahminHakki)
             {
                 lblDurum.Text = $"Tahmin hakkınız bitti! Doğru kelime: {gizliKelime.ToUpper()}";
                 btnTahminEt.Enabled = false;
                 txtTahmin.Enabled = false;
+
+                await Task.Delay(1500); // yanlışsa da biraz görsün
+                YeniKelimeyiBaslat();
             }
 
             txtTahmin.Clear();
@@ -207,34 +149,122 @@ namespace GirisKayit1_story
         }
 
 
-        // Veritabanından kelimeleri al
+        private void YeniKelimeyiBaslat()
+        {
+            if (kelimeListesi.Count > 0)
+            {
+                gizliKelime = kelimeListesi[0];
+                kelimeListesi.RemoveAt(0);
+
+                aktifSatir = 0;
+                lblDurum.Text = $"Yeni Kelime! Tahmin hakkınız: {tahminHakki}";
+                this.Text = "Wordle Oyunu - " + gizliKelime.Length + " Harfli Kelime";
+
+                // Önceki kutuları temizle
+                foreach (var satir in lblHarfSatirlari)
+                {
+                    foreach (var lbl in satir)
+                    {
+                        this.Controls.Remove(lbl);
+                        lbl.Dispose();
+                    }
+                }
+                lblHarfSatirlari.Clear();
+
+                DinamikLabelOlustur();
+
+                txtTahmin.Clear();
+                txtTahmin.MaxLength = gizliKelime.Length;
+                btnTahminEt.Enabled = true;
+                txtTahmin.Enabled = true;
+            }
+            else
+            {
+                lblDurum.Text = "Tüm kelimeleri bildiniz!";
+                MessageBox.Show("Tüm kelimeleri başarıyla tahmin ettiniz!");
+                btnTahminEt.Enabled = false;
+                txtTahmin.Enabled = false;
+            }
+        }
+
         private List<string> GetirOgrenilmisKelimeler()
         {
             List<string> kelimeler = new List<string>();
             string connectionString = @"Server=EdasMatebook\SQLEXPRESS;Database=KelimeEzberlemeDB;Trusted_Connection=True;";
 
+            TimeSpan[] tekrarAraliklari = new TimeSpan[]
+            {
+        TimeSpan.Zero,
+        TimeSpan.FromDays(1),
+        TimeSpan.FromDays(7),
+        TimeSpan.FromDays(30),
+        TimeSpan.FromDays(90),
+        TimeSpan.FromDays(180),
+        TimeSpan.FromDays(365)
+            };
+
             using (SqlConnection baglanti = new SqlConnection(connectionString))
             {
                 baglanti.Open();
 
-                // Öğrenilmiş kelimeleri WordProgress tablosundan al, burada 6 tekrar tamamlananlar filtreleniyor
                 string query = @"
-                    SELECT W.IngKelime
-                    FROM WordProgress WP
-                    JOIN Kelimeler W ON WP.KelimeID = W.KelimeID
-                    WHERE WP.TekrarSayisi >= 6";
+            SELECT KTG.KelimeID, W.IngKelime, KTG.Tarih
+            FROM KelimeTekrarGecmisi KTG
+            JOIN Kelimeler W ON KTG.KelimeID = W.KelimeID
+            WHERE KTG.KullaniciID = @kullaniciID AND KTG.DogruMu = 1
+            ORDER BY KTG.KelimeID, KTG.Tarih";
 
-                using (SqlCommand cmd = new SqlCommand(query, baglanti))
+                SqlCommand cmd = new SqlCommand(query, baglanti);
+                cmd.Parameters.AddWithValue("@kullaniciID", kullaniciID);
+
+                Dictionary<int, List<DateTime>> kelimeDogruZamanlari = new Dictionary<int, List<DateTime>>();
+                Dictionary<int, string> kelimeIngilizce = new Dictionary<int, string>();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    SqlDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        kelimeler.Add(reader["IngKelime"].ToString().ToLower());
+                        int kelimeID = reader.GetInt32(0);
+                        string ing = reader.GetString(1).ToLower();
+                        DateTime tarih = reader.GetDateTime(2);
+
+                        if (!kelimeDogruZamanlari.ContainsKey(kelimeID))
+                        {
+                            kelimeDogruZamanlari[kelimeID] = new List<DateTime>();
+                            kelimeIngilizce[kelimeID] = ing;
+                        }
+
+                        kelimeDogruZamanlari[kelimeID].Add(tarih);
                     }
+                }
+
+                foreach (var pair in kelimeDogruZamanlari)
+                {
+                    List<DateTime> dogruTarihler = pair.Value.OrderBy(x => x).ToList();
+                    if (dogruTarihler.Count < 6) continue;
+
+                    DateTime ilkTarih = dogruTarihler[0];
+                    bool hepsiVar = true;
+
+                    for (int i = 1; i <= 5; i++)
+                    {
+                        DateTime hedefTarih = ilkTarih + tekrarAraliklari[i];
+                        bool uygunVar = dogruTarihler.Any(dt => dt >= hedefTarih);
+                        if (!uygunVar)
+                        {
+                            hepsiVar = false;
+                            break;
+                        }
+                    }
+
+                    if (hepsiVar)
+                        kelimeler.Add(kelimeIngilizce[pair.Key]);
                 }
             }
 
             return kelimeler;
         }
+
+
     }
 }

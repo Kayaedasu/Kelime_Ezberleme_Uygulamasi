@@ -19,8 +19,10 @@ namespace GirisKayit1_story
 
         private void button1_Click(object sender, EventArgs e)
         {
-            FrmGiris kayitFormu = new FrmGiris();
-            kayitFormu.ShowDialog(); // modal olarak aç
+            this.Hide();
+            FrmGiris girisFormu = new FrmGiris();
+            girisFormu.ShowDialog(); // modal olarak aç
+            this.Close();
         }
 
         private void FrmAnaSayfa_Load(object sender, EventArgs e)
@@ -35,8 +37,26 @@ namespace GirisKayit1_story
 
         private void button2_Click(object sender, EventArgs e)
         {
+            this.Hide();
             FrmKayıtOl kayitFormu = new FrmKayıtOl();
             kayitFormu.ShowDialog(); // modal olarak aç
+         
+
+
+            if (kayitFormu.KayitBasariliMi)
+            {
+                FrmGiris girisFormu = new FrmGiris();
+                girisFormu.ShowDialog();
+            }
+            this.Close();
+        }
+
+        private void btnTarih_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            FormTarihcs tarih = new FormTarihcs();
+            tarih.ShowDialog();
+            this.Show();
         }
     }
 }

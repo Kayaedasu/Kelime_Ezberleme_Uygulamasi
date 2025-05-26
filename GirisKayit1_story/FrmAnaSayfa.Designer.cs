@@ -38,6 +38,8 @@
             pictureBox3 = new PictureBox();
             pictureBox4 = new PictureBox();
             pictureBox5 = new PictureBox();
+            btnTarih = new Button();
+            label3 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
@@ -50,7 +52,7 @@
             button1.BackColor = Color.FromArgb(255, 192, 128);
             button1.BackgroundImage = (Image)resources.GetObject("button1.BackgroundImage");
             button1.BackgroundImageLayout = ImageLayout.Stretch;
-            button1.Location = new Point(156, 142);
+            button1.Location = new Point(34, 145);
             button1.Name = "button1";
             button1.Size = new Size(172, 159);
             button1.TabIndex = 0;
@@ -62,7 +64,7 @@
             button2.BackColor = Color.FromArgb(255, 192, 128);
             button2.BackgroundImage = (Image)resources.GetObject("button2.BackgroundImage");
             button2.BackgroundImageLayout = ImageLayout.Stretch;
-            button2.Location = new Point(477, 142);
+            button2.Location = new Point(646, 147);
             button2.Name = "button2";
             button2.Size = new Size(172, 159);
             button2.TabIndex = 1;
@@ -72,7 +74,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(206, 323);
+            label1.Location = new Point(75, 309);
             label1.Name = "label1";
             label1.Size = new Size(91, 28);
             label1.TabIndex = 2;
@@ -82,7 +84,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(524, 323);
+            label2.Location = new Point(696, 309);
             label2.Name = "label2";
             label2.Size = new Size(87, 28);
             label2.TabIndex = 3;
@@ -131,12 +133,33 @@
             // pictureBox5
             // 
             pictureBox5.Image = (Image)resources.GetObject("pictureBox5.Image");
-            pictureBox5.Location = new Point(359, 183);
+            pictureBox5.Location = new Point(372, 5);
             pictureBox5.Name = "pictureBox5";
             pictureBox5.Size = new Size(92, 102);
             pictureBox5.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox5.TabIndex = 8;
             pictureBox5.TabStop = false;
+            // 
+            // btnTarih
+            // 
+            btnTarih.BackColor = Color.FromArgb(255, 192, 128);
+            btnTarih.BackgroundImage = (Image)resources.GetObject("btnTarih.BackgroundImage");
+            btnTarih.BackgroundImageLayout = ImageLayout.Stretch;
+            btnTarih.Location = new Point(328, 145);
+            btnTarih.Name = "btnTarih";
+            btnTarih.Size = new Size(174, 156);
+            btnTarih.TabIndex = 9;
+            btnTarih.UseVisualStyleBackColor = false;
+            btnTarih.Click += btnTarih_Click;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(350, 309);
+            label3.Name = "label3";
+            label3.Size = new Size(126, 28);
+            label3.TabIndex = 10;
+            label3.Text = "Tarih Göster";
             // 
             // FrmAnaSayfa
             // 
@@ -144,6 +167,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(255, 192, 128);
             ClientSize = new Size(830, 502);
+            Controls.Add(label3);
+            Controls.Add(btnTarih);
             Controls.Add(pictureBox5);
             Controls.Add(pictureBox4);
             Controls.Add(pictureBox3);
@@ -178,5 +203,7 @@
         private PictureBox pictureBox3;
         private PictureBox pictureBox4;
         private PictureBox pictureBox5;
+        private Button btnTarih;
+        private Label label3;
     }
 }

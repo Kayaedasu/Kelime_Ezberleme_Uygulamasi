@@ -86,8 +86,10 @@ namespace GirisKayit1_story
 
         private void lnkSifreUnuttum_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            this.Hide();
             FrmŞifremiUnuttum sifreFormu = new FrmŞifremiUnuttum();
             sifreFormu.ShowDialog(); // modal olarak aç
+            this.Show();
         }
     }
 }

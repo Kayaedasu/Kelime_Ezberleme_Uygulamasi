@@ -27,14 +27,18 @@ namespace GirisKayit1_story
 
         private void button1_Click(object sender, EventArgs e)
         {
+            this.Hide();
             FrmKelimeEkle kelimeEkle = new FrmKelimeEkle(kullaniciID);
             kelimeEkle.ShowDialog();
+            this.Show();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            this.Hide();
             FormOgrenciSec secimFormu = new FormOgrenciSec();
             secimFormu.ShowDialog();
+            this.Show();
         }
     }
 }

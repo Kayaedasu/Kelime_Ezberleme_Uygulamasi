@@ -13,6 +13,7 @@ namespace GirisKayit1_story
     public partial class FrmKayıtOl : Form
     {
         string baglantiCumlesi = @"Server=EdasMatebook\SQLEXPRESS;Database=KelimeEzberlemeDB;Trusted_Connection=True;";
+        public bool KayitBasariliMi { get; private set; } = false;
 
         public FrmKayıtOl()
         {
@@ -84,6 +85,7 @@ namespace GirisKayit1_story
 
                     cmdEkle.ExecuteNonQuery();
 
+                    KayitBasariliMi = true; 
                     MessageBox.Show("Kayıt başarılı! Giriş yapabilirsiniz.");
                     this.Close();
                 }

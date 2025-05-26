@@ -37,6 +37,8 @@
             label3 = new Label();
             button4 = new Button();
             label4 = new Label();
+            button5 = new Button();
+            label5 = new Label();
             SuspendLayout();
             // 
             // button1
@@ -108,7 +110,7 @@
             button4.BackColor = Color.FromArgb(255, 192, 128);
             button4.BackgroundImage = (Image)resources.GetObject("button4.BackgroundImage");
             button4.BackgroundImageLayout = ImageLayout.Stretch;
-            button4.Location = new Point(303, 303);
+            button4.Location = new Point(191, 309);
             button4.Name = "button4";
             button4.Size = new Size(156, 152);
             button4.TabIndex = 6;
@@ -118,11 +120,32 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(350, 484);
+            label4.Location = new Point(242, 482);
             label4.Name = "label4";
             label4.Size = new Size(55, 28);
             label4.TabIndex = 7;
             label4.Text = "LLM";
+            // 
+            // button5
+            // 
+            button5.BackColor = Color.FromArgb(255, 192, 128);
+            button5.BackgroundImage = (Image)resources.GetObject("button5.BackgroundImage");
+            button5.BackgroundImageLayout = ImageLayout.Stretch;
+            button5.Location = new Point(436, 309);
+            button5.Name = "button5";
+            button5.Size = new Size(159, 152);
+            button5.TabIndex = 8;
+            button5.UseVisualStyleBackColor = false;
+            button5.Click += button5_Click;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(485, 482);
+            label5.Name = "label5";
+            label5.Size = new Size(70, 28);
+            label5.TabIndex = 9;
+            label5.Text = "Analiz";
             // 
             // FormÖğrenciPanel
             // 
@@ -130,6 +153,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(255, 192, 128);
             ClientSize = new Size(779, 550);
+            Controls.Add(label5);
+            Controls.Add(button5);
             Controls.Add(label4);
             Controls.Add(button4);
             Controls.Add(label3);
@@ -156,5 +181,7 @@
         private Label label3;
         private Button button4;
         private Label label4;
+        private Button button5;
+        private Label label5;
     }
 }

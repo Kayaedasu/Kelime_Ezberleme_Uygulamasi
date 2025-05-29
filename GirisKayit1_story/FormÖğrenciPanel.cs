@@ -66,5 +66,14 @@ namespace GirisKayit1_story
             analiz.ShowDialog();
             this.Show();
         }
+
+        private void btnTarih_Click(object sender, EventArgs e)
+        {
+
+            this.Hide();
+            FormTarihcs tarih = new FormTarihcs();
+            tarih.ShowDialog();
+            this.Show();
+        }
     }
 }

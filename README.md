@@ -48,4 +48,6 @@ dotnet test
 
 ## Lisans
 MIT Lisansı.
-
+## Opsiyonel Olarak Kullanılanlar
+-Opsiyonel: Anlık Doğru ve Hatalı Soruları Görme
+-Opsiyonel: Soruların zorluk seviyesi olsun (1-5) arası ve öğrenci bilgi düzeyini belirlemede bu konuya da dikkat edilsin.

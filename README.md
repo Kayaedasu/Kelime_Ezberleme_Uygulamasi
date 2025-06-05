@@ -9,7 +9,7 @@ zaman aralığında bilinen kelimeleri kullanıcıya sunarak ezberlemeyi kolayla
 - **Kelime Ezberleme Testi**: Rolü öğrenci olan kullanıcı kelimeleri ezberleme testine tabi tutulur.
 - **Başarı Raporu**: Kullanıcıların kelime öğrenme ilerlemeleri raporlanır.,öğretmen tüm öğrencilerin raporunu görebilir.
 - **Bulmaca Modülü**: 6 defa bilinen kelimelerle ilgili bulmacalar oluşturulabilir.
-- **LLM Modülü**: (Henüz geliştirilmedi)
+- **LLM Modülü**: open AI ile Apı_key kullanarak oluşturuldu.
 
 ## Kurulum
 1. GitHub reposunu klonlayın:
@@ -51,3 +51,4 @@ MIT Lisansı.
 ## Opsiyonel Olarak Kullanılanlar
 -Opsiyonel: Anlık Doğru ve Hatalı Soruları Görme
 -Opsiyonel: Soruların zorluk seviyesi olsun (1-5) arası ve öğrenci bilgi düzeyini belirlemede bu konuya da dikkat edilsin.
+-Opsiyonel: Bazı görseller yapay zeka tarafından oluşturuldu
